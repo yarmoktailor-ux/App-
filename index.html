@@ -1,11 +1,16 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>خياط اليرموك</title>
 
 <style>
+
+*{
+box-sizing:border-box;
+}
 
 body{
 margin:0;
@@ -15,7 +20,7 @@ color:white;
 text-align:center;
 }
 
-/* اللوجو */
+/* الشعار */
 
 .logo{
 margin-top:40px;
@@ -35,11 +40,13 @@ font-size:40px;
 
 h1{
 color:#d4af37;
-margin:10px 0 0 0;
+margin:10px 0 5px;
+font-size:26px;
 }
 
 .subtitle{
 color:#c9a33a;
+font-size:14px;
 margin-bottom:25px;
 }
 
@@ -47,56 +54,57 @@ margin-bottom:25px;
 
 .stats{
 display:flex;
-justify-content:center;
-gap:20px;
+gap:12px;
+padding:0 15px;
 margin-bottom:25px;
 }
 
 .stat-box{
-width:150px;
+flex:1;
 background:#2b1a12;
 border:2px solid #a4612a;
 border-radius:20px;
-padding:20px;
+padding:18px 10px;
 }
 
 .stat-number{
-font-size:30px;
+font-size:28px;
 color:#d4af37;
 font-weight:bold;
+margin-bottom:5px;
 }
 
-/* الازرار */
+/* القائمة */
 
 .menu{
-width:85%;
-margin:auto;
+padding:0 15px;
 }
 
 .menu button{
 width:100%;
 background:#c9a33a;
 border:none;
-padding:18px;
-margin:10px 0;
+padding:16px;
+margin:8px 0;
 border-radius:15px;
-font-size:18px;
+font-size:16px;
 cursor:pointer;
 display:flex;
 justify-content:space-between;
 align-items:center;
 }
 
-/* مربع الرسالة */
+/* الرسالة */
 
 .info{
-width:85%;
-margin:30px auto;
+margin:25px 15px;
 background:#2b1a12;
 border:2px solid #a4612a;
 border-radius:20px;
-padding:20px;
+padding:18px;
+font-size:14px;
 color:#ddd;
+line-height:1.6;
 }
 
 /* الشريط السفلي */
@@ -106,21 +114,19 @@ position:fixed;
 bottom:0;
 width:100%;
 background:#1a0f09;
-padding:10px;
+padding:12px;
 border-top:1px solid #a4612a;
 }
 
 .bottom span{
 color:#d4af37;
-font-size:20px;
+font-size:18px;
 }
 
 </style>
 </head>
 
 <body>
-
-<!-- اللوجو -->
 
 <div class="logo">
 
@@ -136,7 +142,6 @@ font-size:20px;
 
 </div>
 
-<!-- الاحصائيات -->
 
 <div class="stats">
 
@@ -152,7 +157,6 @@ font-size:20px;
 
 </div>
 
-<!-- القائمة -->
 
 <div class="menu">
 
@@ -168,7 +172,7 @@ font-size:20px;
 
 <button>
 بحث
-<span>🔎</span>
+<span>🔍</span>
 </button>
 
 <button>
@@ -183,7 +187,6 @@ font-size:20px;
 
 </div>
 
-<!-- الرسالة -->
 
 <div class="info">
 
@@ -191,7 +194,6 @@ font-size:20px;
 
 </div>
 
-<!-- الشريط السفلي -->
 
 <div class="bottom">
 <span>🏠 Home</span>

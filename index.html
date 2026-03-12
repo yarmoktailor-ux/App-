@@ -2,42 +2,117 @@
 <html lang="ar" dir="rtl">
 <head>
 <meta charset="UTF-8">
-<title>إطار اليرموك</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>خياط اليرموك</title>
 
 <style>
 
 body{
-    margin:0;
-    height:100vh;
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    background:#0e0703;
-    font-family: "Tahoma", sans-serif;
+margin:0;
+background:#140b06;
+font-family:Tahoma;
+color:white;
+text-align:center;
 }
 
-/* الصندوق الخارجي */
-.frame{
-    width:80%;
-    max-width:500px;
-    min-height:300px;
-    background:#2b1a12;
-    border:2px solid #b07a3a;
-    border-radius:25px;
-    padding:40px;
-    color:white;
-    box-shadow:0 0 20px rgba(0,0,0,0.6);
+/* اللوجو */
+
+.logo{
+margin-top:40px;
 }
 
-/* نص مؤقت */
-.frame h2{
-    text-align:center;
-    color:#d6a84c;
+.logo-box{
+width:90px;
+height:90px;
+background:#c9a33a;
+border-radius:15px;
+display:flex;
+align-items:center;
+justify-content:center;
+margin:auto;
+font-size:40px;
 }
 
-.frame p{
-    text-align:center;
-    color:#ddd;
+h1{
+color:#d4af37;
+margin:10px 0 0 0;
+}
+
+.subtitle{
+color:#c9a33a;
+margin-bottom:25px;
+}
+
+/* الاحصائيات */
+
+.stats{
+display:flex;
+justify-content:center;
+gap:20px;
+margin-bottom:25px;
+}
+
+.stat-box{
+width:150px;
+background:#2b1a12;
+border:2px solid #a4612a;
+border-radius:20px;
+padding:20px;
+}
+
+.stat-number{
+font-size:30px;
+color:#d4af37;
+font-weight:bold;
+}
+
+/* الازرار */
+
+.menu{
+width:85%;
+margin:auto;
+}
+
+.menu button{
+width:100%;
+background:#c9a33a;
+border:none;
+padding:18px;
+margin:10px 0;
+border-radius:15px;
+font-size:18px;
+cursor:pointer;
+display:flex;
+justify-content:space-between;
+align-items:center;
+}
+
+/* مربع الرسالة */
+
+.info{
+width:85%;
+margin:30px auto;
+background:#2b1a12;
+border:2px solid #a4612a;
+border-radius:20px;
+padding:20px;
+color:#ddd;
+}
+
+/* الشريط السفلي */
+
+.bottom{
+position:fixed;
+bottom:0;
+width:100%;
+background:#1a0f09;
+padding:10px;
+border-top:1px solid #a4612a;
+}
+
+.bottom span{
+color:#d4af37;
+font-size:20px;
 }
 
 </style>
@@ -45,14 +120,81 @@ body{
 
 <body>
 
-<div class="frame">
+<!-- اللوجو -->
 
-<h2>صفحة فارغة</h2>
+<div class="logo">
 
-<p>
-يمكنك إضافة أي محتوى هنا لاحقًا
-</p>
+<div class="logo-box">
+✂️
+</div>
 
+<h1>خياط اليرموك</h1>
+
+<div class="subtitle">
+نظام إدارة الخياطة الحديث
+</div>
+
+</div>
+
+<!-- الاحصائيات -->
+
+<div class="stats">
+
+<div class="stat-box">
+<div class="stat-number">0</div>
+<div>العملاء</div>
+</div>
+
+<div class="stat-box">
+<div class="stat-number">0</div>
+<div>المقاسات</div>
+</div>
+
+</div>
+
+<!-- القائمة -->
+
+<div class="menu">
+
+<button>
+إدارة العملاء
+<span>→</span>
+</button>
+
+<button>
+عميل جديد
+<span>+</span>
+</button>
+
+<button>
+بحث
+<span>🔎</span>
+</button>
+
+<button>
+الإحصائيات
+<span>📊</span>
+</button>
+
+<button>
+الإعدادات
+<span>⚙️</span>
+</button>
+
+</div>
+
+<!-- الرسالة -->
+
+<div class="info">
+
+مرحبًا بك في تطبيق خياط اليرموك، استخدم القائمة أعلاه للبدء في إدارة عملائك ومقاساتهم.
+
+</div>
+
+<!-- الشريط السفلي -->
+
+<div class="bottom">
+<span>🏠 Home</span>
 </div>
 
 </body>

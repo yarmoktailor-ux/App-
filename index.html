@@ -1,203 +1,801 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>خياط اليرموك</title>
-
+<meta name="viewport" content="width=device-width,initial-scale=1.0,viewport-fit=cover">
+<title>اليرموك الحديث | Yarmouk Store 2026</title>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-storage-compat.js"></script>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
+<link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800;900&display=swap" rel="stylesheet">
 <style>
+:root{--gold:#d4af37;--gold-light:#f5e6a3;--brown:#5d4037;--brown-dark:#3e2723;--bg:#faf8f4;--white:#ffffff;--dark:#1a1a1a;--green:#27ae60;--red:#e74c3c;--gray:#999;--radius:16px}
+*{font-family:'Cairo',sans-serif;box-sizing:border-box;margin:0;padding:0;-webkit-tap-highlight-color:transparent}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--gold);border-radius:4px}
+body{background:var(--bg);color:#333;overflow-x:hidden;padding-bottom:env(safe-area-inset-bottom,0px)}
+img{max-width:100%;display:block}
+button{cursor:pointer;border:none;background:none;font-family:inherit}
+input,select,textarea{font-family:inherit;outline:none}
 
-*{
-box-sizing:border-box;
+/* === الأنيميشن === */
+@keyframes fadeUp{from{opacity:0;transform:translateY(16px)}to{opacity:1;transform:translateY(0)}}
+@keyframes fadeIn{from{opacity:0}to{opacity:1}}
+@keyframes slideRight{from{opacity:0;transform:translateX(30px)}to{opacity:1;transform:translateX(0)}}
+@keyframes slideUp{from{transform:translateY(100%)}to{transform:translateY(0)}}
+@keyframes pulse{0%,100%{transform:scale(1)}50%{transform:scale(1.05)}}
+@keyframes shimmer{0%{background-position:-200% 0}100%{background-position:200% 0}}
+@keyframes float{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+@keyframes spin{to{transform:rotate(360deg)}}
+.anim-up{animation:fadeUp .45s ease both}
+.anim-fade{animation:fadeIn .35s ease both}
+
+/* === الهيدر === */
+.top-bar{background:var(--brown-dark);color:var(--gold-light);padding:8px 16px;font-size:11px;text-align:center;letter-spacing:.5px;border-bottom:2px solid var(--gold)}
+header{background:var(--white);padding:16px 20px;display:flex;align-items:center;justify-content:space-between;border-bottom:1px solid #eee;position:sticky;top:0;z-index:500;gap:12px}
+.logo-box{display:flex;align-items:center;gap:10px;flex:1}
+.logo-box img{width:48px;height:48px;border-radius:12px;object-fit:cover;border:2px solid var(--gold)}
+.logo-box .brand{line-height:1.2}
+.logo-box .brand h1{font-size:16px;color:var(--brown);font-weight:800}
+.logo-box .brand span{font-size:10px;color:var(--gold);font-weight:600}
+.header-actions{display:flex;align-items:center;gap:8px}
+.hdr-btn{width:40px;height:40px;border-radius:12px;background:var(--bg);display:flex;align-items:center;justify-content:center;font-size:16px;color:var(--brown);transition:.2s;position:relative}
+.hdr-btn:active{transform:scale(.92)}
+.cart-badge{position:absolute;top:-4px;right:-4px;background:var(--red);color:#fff;font-size:9px;width:18px;height:18px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-weight:800;border:2px solid var(--white)}
+
+/* === التبويبات === */
+.tabs-bar{display:flex;background:var(--white);border-bottom:2px solid #eee;position:sticky;top:72px;z-index:400;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.tabs-bar::-webkit-scrollbar{display:none}
+.tab-btn{flex:1;min-width:0;padding:14px 8px;font-size:13px;font-weight:700;color:var(--gray);border-bottom:3px solid transparent;transition:.25s;white-space:nowrap;text-align:center}
+.tab-btn.active{color:var(--brown);border-bottom-color:var(--gold);background:linear-gradient(180deg,rgba(212,175,55,.06),transparent)}
+
+/* === الحاوية === */
+.container{max-width:720px;margin:0 auto;padding:16px 16px 140px}
+.section{display:none;animation:fadeUp .4s ease}
+.section.active{display:block}
+
+/* === حقول العميل === */
+.cust-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:20px}
+.field{position:relative}
+.field input{width:100%;padding:13px 14px 13px 38px;border:1.5px solid #e8e4dc;border-radius:var(--radius);font-size:13px;background:var(--white);transition:.25s;color:var(--dark)}
+.field input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.12)}
+.field i{position:absolute;left:12px;top:50%;transform:translateY(-50%);color:#bbb;font-size:14px}
+
+/* === شبكة المقاسات === */
+.sizes-card{background:linear-gradient(135deg,#fff9eb,#fff5db);border:1.5px solid #f0e6cc;border-radius:20px;padding:16px;margin-bottom:24px}
+.sizes-card h4{font-size:13px;color:var(--brown);margin-bottom:12px;display:flex;align-items:center;gap:6px}
+.sizes-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px}
+.sz-item label{display:block;font-size:10px;color:var(--brown);font-weight:700;text-align:center;margin-bottom:3px}
+.sz-item input{width:100%;padding:8px 4px;border:1.5px solid #e0d8c8;border-radius:10px;text-align:center;font-size:15px;font-weight:800;color:var(--brown);background:var(--white);transition:.25s}
+.sz-item input:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(212,175,55,.15)}
+.sizes-toggle{display:flex;align-items:center;justify-content:space-between;padding:10px 0 0;border-top:1px dashed #e0d8c8;margin-top:8px}
+.sizes-toggle span{font-size:12px;color:var(--gray)}
+.toggle-sw{width:42px;height:24px;border-radius:12px;background:#ddd;position:relative;transition:.3s;cursor:pointer}
+.toggle-sw.on{background:var(--gold)}
+.toggle-sw::after{content:'';position:absolute;top:2px;right:2px;width:20px;height:20px;border-radius:50%;background:#fff;transition:.3s;box-shadow:0 1px 4px rgba(0,0,0,.15)}
+.toggle-sw.on::after{transform:translateX(-18px)}
+
+/* === المنتجات === */
+.sec-title{font-size:14px;font-weight:700;color:var(--brown);margin-bottom:14px;padding-right:12px;border-right:3px solid var(--gold);display:flex;align-items:center;gap:6px}
+.items-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:12px}
+.p-card{background:var(--white);border-radius:var(--radius);overflow:hidden;border:1px solid #eee;transition:.3s;box-shadow:0 2px 12px rgba(0,0,0,.04);position:relative}
+.p-card:active{transform:scale(.97)}
+.p-card img{width:100%;height:180px;object-fit:cover;transition:.4s}
+.p-card:hover img{transform:scale(1.03)}
+.p-card .info{padding:10px}
+.p-card .info h3{font-size:12px;font-weight:700;color:var(--dark);margin-bottom:4px;line-height:1.4;min-height:34px}
+.p-card .info .price{color:var(--green);font-weight:800;font-size:15px}
+.p-card .info .old-price{color:#bbb;font-size:11px;text-decoration:line-through;margin-right:4px}
+.add-cart-btn{width:100%;padding:10px;background:var(--brown);color:#fff;font-size:12px;font-weight:700;border-radius:0 0 var(--radius) var(--radius);transition:.2s;display:flex;align-items:center;justify-content:center;gap:5px}
+.add-cart-btn:active{background:var(--gold);color:var(--dark)}
+.p-card .discount-tag{position:absolute;top:8px;left:8px;background:var(--red);color:#fff;font-size:9px;padding:3px 8px;border-radius:20px;font-weight:800}
+.empty-state{text-align:center;padding:40px 20px;color:var(--gray)}
+.empty-state i{font-size:40px;margin-bottom:10px;opacity:.3;display:block}
+.empty-state p{font-size:13px}
+
+/* === السلة === */
+.cart-section{margin-top:24px}
+.cart-item{background:var(--white);border:1.5px solid rgba(212,175,55,.3);border-radius:var(--radius);padding:14px;margin-bottom:10px;position:relative;animation:slideRight .3s ease both}
+.cart-item .rm-btn{position:absolute;top:-8px;left:-8px;width:24px;height:24px;border-radius:50%;background:var(--red);color:#fff;font-size:12px;display:flex;align-items:center;justify-content:center;transition:.2s;border:2px solid var(--white)}
+.cart-item .rm-btn:active{transform:scale(.85)}
+.cart-item h4{font-size:13px;font-weight:700;margin-bottom:2px}
+.cart-item .cat-label{font-size:10px;color:var(--gold);font-weight:600;background:rgba(212,175,55,.1);padding:2px 8px;border-radius:20px;display:inline-block;margin-bottom:6px}
+.cart-item .item-price{color:var(--green);font-weight:800;font-size:14px}
+.opts-row{display:grid;grid-template-columns:1fr 1fr;gap:6px;margin-top:8px}
+.opts-row select{padding:8px 10px;border:1px solid #eee;border-radius:10px;font-size:11px;background:#fafafa;color:var(--dark)}
+
+/* === الدفع === */
+.pay-section{margin-top:24px;background:var(--white);border-radius:20px;padding:16px;border:1px solid #eee}
+.pay-section h4{font-size:13px;margin-bottom:12px;color:var(--brown)}
+.pay-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px}
+.pay-card{border:1.5px solid #eee;border-radius:var(--radius);padding:14px 10px;text-align:center;transition:.3s;cursor:pointer}
+.pay-card.active{border-color:var(--gold);background:linear-gradient(135deg,#fff9eb,#fff5db);box-shadow:0 0 0 3px rgba(212,175,55,.1)}
+.pay-card .pay-icon{font-size:24px;margin-bottom:4px}
+.pay-card .pay-name{font-weight:700;font-size:13px}
+.pay-card .pay-sub{font-size:10px;color:var(--gray)}
+.pay-detail{display:none;margin-top:12px;background:#fff9eb;padding:12px;border-radius:12px;border:1px dashed var(--gold);text-align:center;animation:fadeUp .3s ease}
+.pay-detail.show{display:block}
+.pay-detail .acc-num{font-size:18px;font-weight:900;color:var(--brown);margin:6px 0;letter-spacing:1px;direction:ltr}
+.pay-detail .acc-num::selection{background:var(--gold);color:#fff}
+.receipt-upload{margin-top:8px}
+.receipt-upload label{display:inline-flex;align-items:center;gap:6px;padding:8px 16px;background:var(--brown);color:#fff;border-radius:10px;font-size:11px;font-weight:700;cursor:pointer;transition:.2s}
+.receipt-upload label:active{background:var(--gold);color:var(--dark)}
+.receipt-upload input{display:none}
+.receipt-preview{margin-top:8px;max-width:200px;border-radius:10px;border:2px solid var(--gold)}
+
+/* === الفوتر الثابت === */
+.grand-footer{position:fixed;bottom:0;left:0;right:0;background:var(--white);padding:12px 16px;padding-bottom:calc(12px + env(safe-area-inset-bottom,0px));border-top:1px solid #eee;box-shadow:0 -4px 20px rgba(0,0,0,.08);z-index:900}
+.total-row{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px}
+.total-row .label{font-size:13px;font-weight:700;color:var(--brown)}
+.total-row .amount{font-size:22px;font-weight:900;color:var(--green)}
+.submit-btn{width:100%;padding:15px;background:linear-gradient(135deg,var(--brown-dark),var(--brown));color:var(--gold-light);font-size:16px;font-weight:800;border-radius:var(--radius);transition:.25s;display:flex;align-items:center;justify-content:center;gap:8px;letter-spacing:.3px}
+.submit-btn:active{transform:scale(.97);background:linear-gradient(135deg,var(--brown),var(--gold));color:var(--dark)}
+.submit-btn:disabled{opacity:.5;pointer-events:none}
+
+/* === ياقوت المساعد === */
+.yaqoot-btn{position:fixed;bottom:90px;left:16px;width:52px;height:52px;border-radius:50%;background:linear-gradient(135deg,var(--dark),#2d2d2d);color:var(--gold);font-size:20px;display:flex;align-items:center;justify-content:center;z-index:800;box-shadow:0 4px 20px rgba(0,0,0,.3);border:2px solid var(--gold);transition:.3s;animation:float 3s ease-in-out infinite}
+.yaqoot-btn:active{transform:scale(.9)}
+.yaqoot-panel{position:fixed;bottom:90px;left:16px;width:calc(100vw - 32px);max-width:340px;background:var(--white);border-radius:20px;box-shadow:0 10px 40px rgba(0,0,0,.2);z-index:850;overflow:hidden;display:none;animation:fadeUp .3s ease}
+.yaqoot-panel.show{display:block}
+.yaqoot-header{background:linear-gradient(135deg,var(--dark),#2d2d2d);color:var(--gold);padding:14px;font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:space-between}
+.yaqoot-body{padding:14px;max-height:300px;overflow-y:auto}
+.yaqoot-body p{font-size:12px;line-height:1.8;color:#555;margin-bottom:8px}
+.yaqoot-body .quick-btn{display:inline-block;padding:6px 12px;background:#fff9eb;border:1px solid #f0e6cc;border-radius:20px;font-size:11px;color:var(--brown);margin:3px;cursor:pointer;transition:.2s}
+.yaqoot-body .quick-btn:active{background:var(--gold);color:#fff}
+.yaqoot-input{display:flex;gap:6px;padding:10px;border-top:1px solid #eee}
+.yaqoot-input input{flex:1;padding:10px;border:1.5px solid #eee;border-radius:12px;font-size:12px}
+.yaqoot-input input:focus{border-color:var(--gold)}
+.yaqoot-input button{width:40px;height:40px;border-radius:12px;background:var(--gold);color:var(--dark);font-size:14px;display:flex;align-items:center;justify-content:center}
+
+/* === مودال تفاصيل المنتج === */
+.modal-overlay{position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:600;opacity:0;pointer-events:none;transition:.3s;backdrop-filter:blur(4px)}
+.modal-overlay.show{opacity:1;pointer-events:auto}
+.modal-sheet{position:fixed;bottom:0;left:0;right:0;background:var(--white);border-radius:24px 24px 0 0;z-index:610;transform:translateY(100%);transition:.4s cubic-bezier(.4,0,.2,1);max-height:85vh;overflow-y:auto}
+.modal-sheet.show{transform:translateY(0)}
+.modal-handle{width:40px;height:4px;background:#ddd;border-radius:2px;margin:10px auto}
+.modal-sheet img{width:100%;height:280px;object-fit:cover}
+
+/* === التوست === */
+.toast-container{position:fixed;top:80px;left:50%;transform:translateX(-50%);z-index:9999;width:90%;max-width:360px}
+.toast{background:var(--dark);color:#fff;padding:12px 16px;border-radius:12px;font-size:12px;margin-bottom:8px;display:flex;align-items:center;gap:8px;animation:fadeUp .3s ease;box-shadow:0 4px 20px rgba(0,0,0,.2)}
+.toast.success{border-right:3px solid var(--green)}
+.toast.error{border-right:3px solid var(--red)}
+
+/* === لوادر === */
+.skeleton{background:linear-gradient(90deg,#f0ece4 25%,#e8e4dc 50%,#f0ece4 75%);background-size:200% 100%;animation:shimmer 1.5s infinite;border-radius:var(--radius)}
+
+/* === زر الإدارة المخفي === */
+.admin-secret{position:absolute;top:8px;right:8px;width:28px;height:28px;border-radius:8px;font-size:12px;display:flex;align-items:center;justify-content:center;opacity:.08;transition:.3s;z-index:10}
+.admin-secret:active{opacity:.6}
+
+/* === الريسسبونسف === */
+@media(min-width:600px){
+    .sizes-grid{grid-template-columns:repeat(4,1fr)}
+    .items-grid{grid-template-columns:repeat(3,1fr);gap:16px}
+    .p-card img{height:200px}
+    .container{padding:24px 24px 140px}
+    .yaqoot-panel{max-width:380px}
 }
-
-body{
-margin:0;
-background:#140b06;
-font-family:Tahoma;
-color:white;
-text-align:center;
+@media(min-width:900px){
+    .items-grid{grid-template-columns:repeat(4,1fr)}
+    .container{max-width:900px}
+    .p-card img{height:220px}
 }
-
-/* الشعار */
-
-.logo{
-margin-top:40px;
+@media(max-width:360px){
+    .sizes-grid{grid-template-columns:repeat(2,1fr)}
+    .cust-grid{grid-template-columns:1fr}
+    .pay-grid{grid-template-columns:1fr}
 }
-
-.logo-box{
-width:90px;
-height:90px;
-background:#c9a33a;
-border-radius:15px;
-display:flex;
-align-items:center;
-justify-content:center;
-margin:auto;
-font-size:40px;
-}
-
-h1{
-color:#d4af37;
-margin:10px 0 5px;
-font-size:26px;
-}
-
-.subtitle{
-color:#c9a33a;
-font-size:14px;
-margin-bottom:25px;
-}
-
-/* الاحصائيات */
-
-.stats{
-display:flex;
-gap:12px;
-padding:0 15px;
-margin-bottom:25px;
-}
-
-.stat-box{
-flex:1;
-background:#2b1a12;
-border:2px solid #a4612a;
-border-radius:20px;
-padding:18px 10px;
-}
-
-.stat-number{
-font-size:28px;
-color:#d4af37;
-font-weight:bold;
-margin-bottom:5px;
-}
-
-/* القائمة */
-
-.menu{
-padding:0 15px;
-}
-
-.menu button{
-width:100%;
-background:#c9a33a;
-border:none;
-padding:16px;
-margin:8px 0;
-border-radius:15px;
-font-size:16px;
-cursor:pointer;
-display:flex;
-justify-content:space-between;
-align-items:center;
-}
-
-/* الرسالة */
-
-.info{
-margin:25px 15px;
-background:#2b1a12;
-border:2px solid #a4612a;
-border-radius:20px;
-padding:18px;
-font-size:14px;
-color:#ddd;
-line-height:1.6;
-}
-
-/* الشريط السفلي */
-
-.bottom{
-position:fixed;
-bottom:0;
-width:100%;
-background:#1a0f09;
-padding:12px;
-border-top:1px solid #a4612a;
-}
-
-.bottom span{
-color:#d4af37;
-font-size:18px;
-}
-
 </style>
 </head>
-
 <body>
 
-<div class="logo">
+<!-- شريط ترحيبي -->
+<div class="top-bar">اليرموك الحديث &mdash; إرث الوالد يرحب بك</div>
 
-<div class="logo-box">
-✂️
+<!-- الهيدر -->
+<header>
+    <div class="logo-box">
+        <button class="admin-secret" onclick="openAdmin()"><i class="fa-solid fa-gear"></i></button>
+        <img src="https://i.ibb.co/C3YFp0k7/688339f4-1296-48c0-bc66-3be039832675.png" alt="شعار اليرموك" id="logo_img">
+        <div class="brand">
+            <h1>متجر اليرموك</h1>
+            <span>أصالة التفصيل وفخامة المظهر</span>
+        </div>
+    </div>
+    <div class="header-actions">
+        <button class="hdr-btn" onclick="toggleYaqoot()" title="ياقوت المساعد"><i class="fa-solid fa-gem"></i></button>
+        <button class="hdr-btn" onclick="scrollToCart()" title="السلة">
+            <i class="fa-solid fa-bag-shopping"></i>
+            <span class="cart-badge" id="cart_badge" style="display:none">0</span>
+        </button>
+    </div>
+</header>
+
+<!-- التبويبات -->
+<div class="tabs-bar" id="tabsBar">
+    <button class="tab-btn active" data-tab="tailor" onclick="switchTab('tailor',this)"><i class="fa-solid fa-scissors" style="margin-left:4px"></i>تفصيل وأقمشة</button>
+    <button class="tab-btn" data-tab="ready" onclick="switchTab('ready',this)"><i class="fa-solid fa-shirt" style="margin-left:4px"></i>ملابس جاهزة</button>
+    <button class="tab-btn" data-tab="cart" onclick="switchTab('cart',this)"><i class="fa-solid fa-cart-shopping" style="margin-left:4px"></i>سلة الطلب</button>
 </div>
 
-<h1>خياط اليرموك</h1>
+<!-- المحتوى -->
+<div class="container">
 
-<div class="subtitle">
-نظام إدارة الخياطة الحديث
+    <!-- حقول العميل -->
+    <div class="cust-grid anim-up">
+        <div class="field"><i class="fa-solid fa-user"></i><input type="text" id="cust_name" placeholder="الاسم الكامل"></div>
+        <div class="field"><i class="fa-solid fa-phone"></i><input type="tel" id="cust_phone" placeholder="رقم الهاتف"></div>
+    </div>
+
+    <!-- قسم التفصيل -->
+    <div id="section_tailor" class="section active">
+        <div class="sizes-card anim-up" style="animation-delay:.05s">
+            <h4><i class="fa-solid fa-ruler"></i> مقاساتك بالإنش</h4>
+            <div class="sizes-grid" id="sizesGrid">
+                <div class="sz-item"><label>الطول</label><input type="number" step="0.1" class="m-val" data-label="الطول"></div>
+                <div class="sz-item"><label>الكتف</label><input type="number" step="0.1" class="m-val" data-label="الكتف"></div>
+                <div class="sz-item"><label>اليد</label><input type="number" step="0.1" class="m-val" data-label="اليد"></div>
+                <div class="sz-item"><label>الصدر</label><input type="number" step="0.1" class="m-val" data-label="الصدر"></div>
+                <div class="sz-item"><label>الرقبة</label><input type="number" step="0.1" class="m-val" data-label="الرقبة"></div>
+                <div class="sz-item"><label>وسع اليد</label><input type="number" step="0.1" class="m-val" data-label="وسع اليد"></div>
+                <div class="sz-item"><label>الكبك</label><input type="number" step="0.1" class="m-val" data-label="الكبك"></div>
+                <div class="sz-item"><label>الخطوة</label><input type="number" step="0.1" class="m-val" data-label="الخطوة"></div>
+            </div>
+            <div class="sizes-toggle">
+                <span>حفظ المقاسات للطلبات القادمة</span>
+                <div class="toggle-sw" id="saveSizesToggle" onclick="this.classList.toggle('on')"></div>
+            </div>
+        </div>
+        <div class="sec-title anim-up" style="animation-delay:.1s"><i class="fa-solid fa-palette"></i> اختر القماش وابدأ التفصيل</div>
+        <div id="fabric_display" class="items-grid anim-up" style="animation-delay:.15s">
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+        </div>
+    </div>
+
+    <!-- قسم الجاهز -->
+    <div id="section_ready" class="section">
+        <div class="sec-title anim-up"><i class="fa-solid fa-wand-magic-sparkles"></i> تشكيلة اليرموك الجاهزة</div>
+        <div id="ready_display" class="items-grid anim-up" style="animation-delay:.1s">
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+            <div class="skeleton" style="height:260px"></div>
+        </div>
+    </div>
+
+    <!-- قسم السلة -->
+    <div id="section_cart" class="section">
+        <div class="sec-title"><i class="fa-solid fa-bag-shopping"></i> قائمة طلبك</div>
+        <div id="cart_items_list">
+            <div class="empty-state"><i class="fa-solid fa-bag-shopping"></i><p>لم تقم بإضافة أي عناصر بعد</p></div>
+        </div>
+        <div id="cart_pay_section" style="display:none">
+            <div class="pay-section">
+                <h4><i class="fa-solid fa-credit-card" style="margin-left:4px"></i> طريقة الدفع المفضلة</h4>
+                <div class="pay-grid">
+                    <div class="pay-card" onclick="selectPay('الكريمي','3005374854',this)">
+                        <div class="pay-icon" style="color:#1a5eb8"><i class="fa-solid fa-building-columns"></i></div>
+                        <div class="pay-name">الكريمي</div>
+                        <div class="pay-sub">تحويل حساب</div>
+                    </div>
+                    <div class="pay-card" onclick="selectPay('جيب Jeeb','595720',this)">
+                        <div class="pay-icon" style="color:#f39c12"><i class="fa-solid fa-wallet"></i></div>
+                        <div class="pay-name">جيب</div>
+                        <div class="pay-sub">رقم النقطة</div>
+                    </div>
+                </div>
+                <div class="pay-detail" id="pay_detail">
+                    <small>حوّل للمستلم ثم أرفق صورة الإيصال:</small>
+                    <div class="acc-num" id="acc_num" onclick="copyAcc()">3005374854</div>
+                    <div style="font-size:10px;color:var(--gray);margin-bottom:6px">اضغط على الرقم للنسخ</div>
+                    <div class="receipt-upload">
+                        <label for="receipt_img"><i class="fa-solid fa-camera"></i> رفع إيصال الدفع</label>
+                        <input type="file" id="receipt_img" accept="image/*" onchange="previewReceipt(this)">
+                    </div>
+                    <img id="receipt_preview" class="receipt-preview" style="display:none">
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
+<!-- الفوتر الثابت -->
+<div class="grand-footer" id="grandFooter">
+    <div class="total-row">
+        <span class="label">إجمالي هيبتك:</span>
+        <span class="amount"><span id="total_price">0</span> ر.ي</span>
+    </div>
+    <button class="submit-btn" id="submitBtn" onclick="finalizeOrder()">
+        <i class="fa-brands fa-whatsapp"></i> تأكيد الطلب عبر واتساب
+    </button>
 </div>
 
-
-<div class="stats">
-
-<div class="stat-box">
-<div class="stat-number">0</div>
-<div>العملاء</div>
+<!-- ياقوت المساعد -->
+<button class="yaqoot-btn" id="yaqootBtn" onclick="toggleYaqoot()"><i class="fa-solid fa-gem"></i></button>
+<div class="yaqoot-panel" id="yaqootPanel">
+    <div class="yaqoot-header">
+        <span><i class="fa-solid fa-gem" style="margin-left:6px"></i>ياقوت - مساعدتك الذكية</span>
+        <button onclick="toggleYaqoot()" style="color:var(--gold);font-size:16px"><i class="fa-solid fa-xmark"></i></button>
+    </div>
+    <div class="yaqoot-body" id="yaqootBody">
+        <p>أهلاً بك في اليرموك! أنا ياقوت، هنا أساعدك تختار أنسب قماش لجو صنعاء. كيف أقدر أخدمك؟</p>
+        <div>
+            <button class="quick-btn" onclick="yaqootReply('ما أفضل قماش للصيف؟')">قماش صيفي</button>
+            <button class="quick-btn" onclick="yaqootReply('ما أفضل قماش للشتاء؟')">قماش شتوي</button>
+            <button class="quick-btn" onclick="yaqootReply('كم يستغرق التفصيل؟')">مدة التفصيل</button>
+            <button class="quick-btn" onclick="yaqootReply('ما هي طرق الدفع؟')">طرق الدفع</button>
+        </div>
+    </div>
+    <div class="yaqoot-input">
+        <input type="text" id="yaqootInput" placeholder="اسأل ياقوت..." onkeydown="if(event.key==='Enter')sendYaqoot()">
+        <button onclick="sendYaqoot()"><i class="fa-solid fa-paper-plane"></i></button>
+    </div>
 </div>
 
-<div class="stat-box">
-<div class="stat-number">0</div>
-<div>المقاسات</div>
+<!-- مودال تفاصيل المنتج -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModal()"></div>
+<div class="modal-sheet" id="modalSheet">
+    <div class="modal-handle"></div>
+    <div id="modalContent"></div>
 </div>
 
-</div>
+<!-- حاوية التوست -->
+<div class="toast-container" id="toastBox"></div>
 
+<script>
+/* ==========================================
+   === Firebase ===
+   ========================================== */
+const firebaseConfig = {
+    apiKey: "AIzaSyDMpGKS3hm7FqFI8twabti1aHAqksvSZME",
+    databaseURL: "https://yarmouk-booking-default-rtdb.firebaseio.com/",
+    projectId: "yarmouk-booking",
+    storageBucket: "yarmouk-booking.firebasestorage.app"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.database();
 
-<div class="menu">
+/* ==========================================
+   === الحالة المحلية ===
+   ========================================== */
+let cart = JSON.parse(localStorage.getItem('yarmouk_cart') || '[]');
+let selectedPayMethod = '';
+let selectedPayAcc = '';
+let receiptData = null;
+let cachedProducts = {};
 
-<button>
-إدارة العملاء
-<span>→</span>
-</button>
+// استعادة المقاسات المحفوظة
+function restoreSizes() {
+    const saved = JSON.parse(localStorage.getItem('yarmouk_sizes') || '{}');
+    document.querySelectorAll('.m-val').forEach(inp => {
+        const label = inp.dataset.label;
+        if (saved[label]) inp.value = saved[label];
+    });
+    if (Object.keys(saved).length) {
+        document.getElementById('saveSizesToggle').classList.add('on');
+    }
+}
 
-<button>
-عميل جديد
-<span>+</span>
-</button>
+// استعادة بيانات العميل
+function restoreCustomer() {
+    const saved = JSON.parse(localStorage.getItem('yarmouk_customer') || '{}');
+    if (saved.name) document.getElementById('cust_name').value = saved.name;
+    if (saved.phone) document.getElementById('cust_phone').value = saved.phone;
+}
 
-<button>
-بحث
-<span>🔍</span>
-</button>
+// حفظ تلقائي للبيانات
+function persistCart() {
+    localStorage.setItem('yarmouk_cart', JSON.stringify(cart));
+}
+function persistSizes() {
+    if (!document.getElementById('saveSizesToggle').classList.contains('on')) return;
+    const sizes = {};
+    document.querySelectorAll('.m-val').forEach(inp => {
+        if (inp.value) sizes[inp.dataset.label] = inp.value;
+    });
+    localStorage.setItem('yarmouk_sizes', JSON.stringify(sizes));
+}
+function persistCustomer() {
+    localStorage.setItem('yarmouk_customer', JSON.stringify({
+        name: document.getElementById('cust_name').value.trim(),
+        phone: document.getElementById('cust_phone').value.trim()
+    }));
+}
 
-<button>
-الإحصائيات
-<span>📊</span>
-</button>
+// حفظ عند الكتابة
+document.querySelectorAll('.m-val').forEach(inp => inp.addEventListener('input', persistSizes));
+document.getElementById('cust_name').addEventListener('input', persistCustomer);
+document.getElementById('cust_phone').addEventListener('input', persistCustomer);
 
-<button>
-الإعدادات
-<span>⚙️</span>
-</button>
+/* ==========================================
+   === التبويبات ===
+   ========================================== */
+function switchTab(tab, btn) {
+    document.querySelectorAll('.section').forEach(s => s.classList.remove('active'));
+    document.querySelectorAll('.tab-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById('section_' + tab).classList.add('active');
+    btn.classList.add('active');
+    // تحريك شريط التبويبات
+    btn.scrollIntoView({ behavior: 'smooth', inline: 'center', block: 'nearest' });
+}
+function scrollToCart() {
+    switchTab('cart', document.querySelector('[data-tab="cart"]'));
+}
 
-</div>
+/* ==========================================
+   === تحميل المنتجات من Firebase ===
+   ========================================== */
+let productsLoaded = { fabric: false, ready: false };
 
+function renderProductCard(p, key) {
+    const hasDiscount = p.oldPrice && p.oldPrice > p.price;
+    const discountPercent = hasDiscount ? Math.round((1 - p.price / p.oldPrice) * 100) : 0;
+    return `
+        <div class="p-card" onclick="openProductModal('${key}')" style="animation:fadeUp .4s ease both;animation-delay:${Math.random()*0.2}s">
+            ${hasDiscount ? `<span class="discount-tag">-${discountPercent}%</span>` : ''}
+            <img src="${p.img}" alt="${p.name}" loading="lazy">
+            <div class="info">
+                <h3>${p.name}</h3>
+                <div>
+                    ${hasDiscount ? `<span class="old-price">${Number(p.oldPrice).toLocaleString()}</span>` : ''}
+                    <span class="price">${Number(p.price).toLocaleString()} ر.ي</span>
+                </div>
+            </div>
+            <button class="add-cart-btn" onclick="event.stopPropagation();addToCart('${key}')">
+                <i class="fa-solid fa-plus"></i> إضافة للسلة
+            </button>
+        </div>`;
+}
 
-<div class="info">
+db.ref('products').on('value', snapshot => {
+    const fabricsDiv = document.getElementById('fabric_display');
+    const readyDiv = document.getElementById('ready_display');
+    let fabricsHtml = '', readyHtml = '';
+    let fabCount = 0, readyCount = 0;
 
-مرحبًا بك في تطبيق خياط اليرموك، استخدم القائمة أعلاه للبدء في إدارة عملائك ومقاساتهم.
+    snapshot.forEach(child => {
+        const p = child.val();
+        const key = child.key;
+        if (!p.isVisible) return;
+        cachedProducts[key] = p;
+        const html = renderProductCard(p, key);
+        if (p.cat === 'fabric') { fabricsHtml += html; fabCount++; }
+        else { readyHtml += html; readyCount++; }
+    });
 
-</div>
+    fabricsDiv.innerHTML = fabricsHtml || '<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-scissors"></i><p>لا توجد أقمشة متاحة حالياً</p></div>';
+    readyDiv.innerHTML = readyHtml || '<div class="empty-state" style="grid-column:1/-1"><i class="fa-solid fa-shirt"></i><p>لا توجد ملابس جاهزة حالياً</p></div>';
+});
 
+/* ==========================================
+   === مودال تفاصيل المنتج ===
+   ========================================== */
+function openProductModal(key) {
+    const p = cachedProducts[key];
+    if (!p) return;
+    const hasDiscount = p.oldPrice && p.oldPrice > p.price;
+    document.getElementById('modalContent').innerHTML = `
+        <img src="${p.img}" alt="${p.name}">
+        <div style="padding:20px">
+            <h2 style="font-size:18px;font-weight:800;color:var(--brown);margin-bottom:8px">${p.name}</h2>
+            <div style="margin-bottom:12px">
+                ${hasDiscount ? `<span style="color:#bbb;text-decoration:line-through;font-size:14px;margin-left:8px">${Number(p.oldPrice).toLocaleString()} ر.ي</span>` : ''}
+                <span style="color:var(--green);font-size:20px;font-weight:900">${Number(p.price).toLocaleString()} ر.ي</span>
+            </div>
+            ${p.desc ? `<p style="font-size:13px;color:#666;line-height:1.8;margin-bottom:16px">${p.desc}</p>` : ''}
+            ${p.details ? `<div style="background:var(--bg);padding:12px;border-radius:12px;margin-bottom:16px;font-size:12px;color:#555;line-height:1.8">${p.details}</div>` : ''}
+            <button class="submit-btn" onclick="addToCart('${key}');closeModal()" style="font-size:15px;padding:14px">
+                <i class="fa-solid fa-cart-plus"></i> إضافة للسلة - ${Number(p.price).toLocaleString()} ر.ي
+            </button>
+        </div>`;
+    document.getElementById('modalOverlay').classList.add('show');
+    document.getElementById('modalSheet').classList.add('show');
+    document.body.style.overflow = 'hidden';
+}
+function closeModal() {
+    document.getElementById('modalOverlay').classList.remove('show');
+    document.getElementById('modalSheet').classList.remove('show');
+    document.body.style.overflow = '';
+}
 
-<div class="bottom">
-<span>🏠 Home</span>
-</div>
+/* ==========================================
+   === إدارة السلة ===
+   ========================================== */
+function addToCart(key) {
+    const p = cachedProducts[key];
+    if (!p) return;
+    // التحقق إن المنتج موجود بالفعل
+    const exists = cart.find(c => c.id === key);
+    if (exists) {
+        exists.qty = (exists.qty || 1) + 1;
+    } else {
+        cart.push({
+            cartId: Date.now() + Math.random(),
+            id: key,
+            name: p.name,
+            price: Number(p.price),
+            cat: p.cat,
+            img: p.img,
+            qty: 1,
+            neckOpt: 'قلاب ملكي',
+            sleeveOpt: 'كبك حشو'
+        });
+    }
+    persistCart();
+    renderCart();
+    updateBadge();
+    toast('تمت الإضافة للسلة', 'success');
+}
 
+function removeFromCart(cartId) {
+    cart = cart.filter(c => c.cartId !== cartId);
+    persistCart();
+    renderCart();
+    updateBadge();
+}
+
+function updateCartItemOption(cartId, field, value) {
+    const item = cart.find(c => c.cartId === cartId);
+    if (item) item[field] = value;
+    persistCart();
+}
+
+function changeQty(cartId, delta) {
+    const item = cart.find(c => c.cartId === cartId);
+    if (!item) return;
+    item.qty = Math.max(1, (item.qty || 1) + delta);
+    persistCart();
+    renderCart();
+    updateBadge();
+}
+
+function renderCart() {
+    const list = document.getElementById('cart_items_list');
+    const paySec = document.getElementById('cart_pay_section');
+    
+    if (cart.length === 0) {
+        list.innerHTML = '<div class="empty-state"><i class="fa-solid fa-bag-shopping"></i><p>لم تقم بإضافة أي عناصر بعد</p></div>';
+        paySec.style.display = 'none';
+        document.getElementById('total_price').textContent = '0';
+        return;
+    }
+
+    paySec.style.display = 'block';
+    let total = 0;
+    
+    list.innerHTML = cart.map((item, idx) => {
+        const subtotal = item.price * (item.qty || 1);
+        total += subtotal;
+        const isFabric = item.cat === 'fabric';
+        return `
+            <div class="cart-item" style="animation-delay:${idx * 0.05}s">
+                <button class="rm-btn" onclick="removeFromCart(${item.cartId})"><i class="fa-solid fa-xmark"></i></button>
+                <div style="display:flex;gap:10px;align-items:flex-start">
+                    <img src="${item.img}" style="width:60px;height:60px;border-radius:10px;object-fit:cover;flex-shrink:0" loading="lazy">
+                    <div style="flex:1;min-width:0">
+                        <span class="cat-label">${isFabric ? 'تفصيل' : 'جاهز'}</span>
+                        <h4 style="margin-bottom:4px">${item.name}</h4>
+                        <div class="item-price">${subtotal.toLocaleString()} ر.ي</div>
+                    </div>
+                </div>
+                <!-- الكمية -->
+                <div style="display:flex;align-items:center;gap:10px;margin-top:8px;justify-content:center">
+                    <button onclick="changeQty(${item.cartId},-1)" style="width:28px;height:28px;border-radius:8px;background:var(--bg);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">-</button>
+                    <span style="font-weight:800;font-size:14px;min-width:24px;text-align:center">${item.qty}</span>
+                    <button onclick="changeQty(${item.cartId},1)" style="width:28px;height:28px;border-radius:8px;background:var(--bg);font-size:14px;font-weight:700;display:flex;align-items:center;justify-content:center">+</button>
+                </div>
+                ${isFabric ? `
+                <div class="opts-row">
+                    <select onchange="updateCartItemOption(${item.cartId},'neckOpt',this.value)">
+                        <option ${item.neckOpt==='قلاب ملكي'?'selected':''}>قلاب ملكي</option>
+                        <option ${item.neckOpt==='صيني'?'selected':''}>صيني</option>
+                        <option ${item.neckOpt==='سادة'?'selected':''}>سادة</option>
+                        <option ${item.neckOpt==='كول'?'selected':''}>كول</option>
+                    </select>
+                    <select onchange="updateCartItemOption(${item.cartId},'sleeveOpt',this.value)">
+                        <option ${item.sleeveOpt==='كبك حشو'?'selected':''}>كبك حشو</option>
+                        <option ${item.sleeveOpt==='سادة'?'selected':''}>سادة</option>
+                        <option ${item.sleeveOpt==='فرنسي'?'selected':''}>فرنسي</option>
+                        <option ${item.sleeveOpt==='دراع عادي'?'selected':''}>دراع عادي</option>
+                    </select>
+                </div>` : ''}
+            </div>`;
+    }).join('');
+
+    document.getElementById('total_price').textContent = total.toLocaleString();
+}
+
+function updateBadge() {
+    const badge = document.getElementById('cart_badge');
+    const count = cart.reduce((s, c) => s + (c.qty || 1), 0);
+    badge.textContent = count;
+    badge.style.display = count > 0 ? 'flex' : 'none';
+}
+
+/* ==========================================
+   === الدفع ===
+   ========================================== */
+function selectPay(method, acc, el) {
+    document.querySelectorAll('.pay-card').forEach(c => c.classList.remove('active'));
+    el.classList.add('active');
+    selectedPayMethod = method;
+    selectedPayAcc = acc;
+    document.getElementById('pay_detail').classList.add('show');
+    document.getElementById('acc_num').textContent = acc;
+}
+
+function copyAcc() {
+    if (!selectedPayAcc) return;
+    navigator.clipboard.writeText(selectedPayAcc).then(() => toast('تم نسخ رقم الحساب', 'success'));
+}
+
+function previewReceipt(input) {
+    const file = input.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = e => {
+        receiptData = e.target.result;
+        const prev = document.getElementById('receipt_preview');
+        prev.src = receiptData;
+        prev.style.display = 'block';
+        toast('تم رفع الإيصال بنجاح', 'success');
+    };
+    reader.readAsDataURL(file);
+}
+
+/* ==========================================
+   === إرسال الطلب ===
+   ========================================== */
+function finalizeOrder() {
+    const name = document.getElementById('cust_name').value.trim();
+    const phone = document.getElementById('cust_phone').value.trim();
+
+    if (!name) { toast('يرجى إدخال اسمك', 'error'); document.getElementById('cust_name').focus(); return; }
+    if (!phone) { toast('يرجى إدخال رقم هاتفك', 'error'); document.getElementById('cust_phone').focus(); return; }
+    if (cart.length === 0) { toast('السلة فارغة، اختر منتجاً أولاً', 'error'); return; }
+
+    let msg = `*طلب جديد من متجر اليرموك*\n\n`;
+    msg += `👤 *العميل:* ${name}\n`;
+    msg += `📞 *الهاتف:* ${phone}\n\n`;
+
+    // المقاسات
+    const measurements = [];
+    document.querySelectorAll('.m-val').forEach(i => {
+        if (i.value) measurements.push(`${i.dataset.label}: ${i.value}`);
+    });
+    if (measurements.length) {
+        msg += `📏 *المقاسات:*\n${measurements.join(' | ')}\n\n`;
+    }
+
+    // المنتجات
+    let total = 0;
+    msg += `🛒 *الطلبات:*\n`;
+    cart.forEach((item, idx) => {
+        const sub = item.price * (item.qty || 1);
+        total += sub;
+        msg += `${idx + 1}. ${item.name} × ${item.qty || 1} = ${sub.toLocaleString()} ر.ي\n`;
+        if (item.cat === 'fabric') {
+            msg += `   ✂️ الياقة: ${item.neckOpt} | الكم: ${item.sleeveOpt}\n`;
+        }
+    });
+
+    msg += `\n💰 *الإجمالي:* ${total.toLocaleString()} ر.ي\n`;
+    if (selectedPayMethod) msg += `💳 *الدفع:* ${selectedPayMethod}\n`;
+    msg += `\n_"إرث الوالد يرحب بك"_`;
+
+    // فتح واتساب
+    const waUrl = `https://wa.me/967773463560?text=${encodeURIComponent(msg)}`;
+    window.open(waUrl, '_blank');
+
+    // إرسال للويب هوك للأرشفة
+    try {
+        fetch('https://ali991278.app.n8n.cloud/webhook-test/e4bcc169-93c0-42c5-8226-528f3c6a72e3', {
+            method: 'POST',
+            mode: 'no-cors',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                name, phone, cart,
+                total: total.toLocaleString(),
+                measurements,
+                payMethod: selectedPayMethod,
+                timestamp: new Date().toISOString()
+            })
+        });
+    } catch (e) { /* صامت */ }
+
+    // تنظيف السلة
+    cart = [];
+    persistCart();
+    renderCart();
+    updateBadge();
+    toast('تم إرسال الطلب بنجاح!', 'success');
+}
+
+/* ==========================================
+   === ياقوت المساعد الذكي ===
+   ========================================== */
+const yaqootReplies = {
+    'صيف': 'للصيف أنصحك بالأقمشة القطنية الخفيفة أو الكتّان، راحية على الجلد وتتنفس بشكل ممتاز. الثوب القطني المخطط من اليرموك خيار ممتاز لجو صنعاء الحار.',
+    'شتاء': 'للشتاء أفضل خيار هو الأقمشة الصوفية أو التريكو السميك. عندنا تشكيلة أقمشة صوفية تدفّي وتمنحك فخامة المظهر حتى في أبرد الأيام.',
+    'مدة': 'مدة التفصيل عادة من 3 إلى 7 أيام عمل حسب حجم الطلب وازدحام الموسم. في المواسم ننصح بالحجز المبكر.',
+    'دفع': 'عندنا عدة طرق: تحويل عبر الكريمي، محفظة جيب، أو الدفع عند الاستلام. تقدر تختار الأنسب لك.',
+    'مقاس': 'لأخذ مقاساتك بدقة: الطول من أعلى الكتف، الكتف من طرف لآخر، الصدر حول أوسع جزء، واليد من أعلى الكتف لأسطرلة اليد.',
+    'تفصيل': 'التفصيل عندنا يشمل: اختيار القماش، أخذ المقاسات، اختيار الياقة والكم، ثم الخياطة اليدوية بدقة عالية.',
+    'default': 'شكراً لسؤالك! أنا ياقوت مساعدتك في متجر اليرموك. تقدر تسألني عن الأقمشة، المقاسات، مدة التفصيل، أو طرق الدفع.'
+};
+
+function toggleYaqoot() {
+    const panel = document.getElementById('yaqootPanel');
+    const btn = document.getElementById('yaqootBtn');
+    const isOpen = panel.classList.contains('show');
+    panel.classList.toggle('show');
+    btn.style.display = isOpen ? 'flex' : 'none';
+}
+
+function yaqootReply(question) {
+    const body = document.getElementById('yaqootBody');
+    // سؤال المستخدم
+    body.innerHTML += `<div style="text-align:left;margin:8px 0"><span style="background:var(--gold);color:var(--dark);padding:6px 12px;border-radius:12px 12px 0 12px;font-size:11px;display:inline-block">${question}</span></div>`;
+    // رد ياقوت
+    let reply = yaqootReplies.default;
+    for (const key in yaqootReplies) {
+        if (key !== 'default' && question.includes(key)) { reply = yaqootReplies[key]; break; }
+    }
+    setTimeout(() => {
+        body.innerHTML += `<div style="margin:8px 0;animation:fadeUp .3s ease"><p style="background:var(--bg);padding:10px 14px;border-radius:0 12px 12px 12px;font-size:12px;line-height:1.8;display:inline-block">${reply}</p></div>`;
+        body.scrollTop = body.scrollHeight;
+    }, 500);
+}
+
+function sendYaqoot() {
+    const input = document.getElementById('yaqootInput');
+    const q = input.value.trim();
+    if (!q) return;
+    yaqootReply(q);
+    input.value = '';
+}
+
+/* ==========================================
+   === الإشعارات ===
+   ========================================== */
+function toast(msg, type = 'success') {
+    const el = document.createElement('div');
+    el.className = `toast ${type}`;
+    el.innerHTML = `<i class="fa-solid ${type === 'success' ? 'fa-check-circle' : 'fa-exclamation-circle'}" style="color:${type === 'success' ? 'var(--green)' : 'var(--red)'}"></i><span>${msg}</span>`;
+    document.getElementById('toastBox').appendChild(el);
+    setTimeout(() => { el.style.opacity = '0'; el.style.transform = 'translateY(-10px)'; el.style.transition = '.3s'; setTimeout(() => el.remove(), 300); }, 3000);
+}
+
+/* ==========================================
+   === الإدارة المخفية ===
+   ========================================== */
+function openAdmin() {
+    const pass = prompt('كلمة مرور الإدارة:');
+        if (pass === '1234') window.location.href = 'admin.html';
+}
+
+/* ==========================================
+   === التهيئة ===
+   ========================================== */
+document.addEventListener('DOMContentLoaded', () => {
+    restoreSizes();
+    restoreCustomer();
+    renderCart();
+    updateBadge();
+
+    // إغلاق المودال بالسحب
+    let startY = 0;
+    const sheet = document.getElementById('modalSheet');
+    sheet.addEventListener('touchstart', e => { startY = e.touches[0].clientY; });
+    sheet.addEventListener('touchmove', e => {
+        const dy = e.touches[0].clientY - startY;
+        if (dy > 80) closeModal();
+    });
+});
+</script>
 </body>
 </html>
